@@ -1,25 +1,54 @@
-import React from 'react';
-import logo from './logo.svg';
+import { useState } from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
+import { BrowserRouter } from 'react-router-dom';
+import { Slide, ToastContainer } from 'react-toastify';
 import './App.css';
+import { Root } from './root';
+import InjectAxiosInterceptors from './services/InjectAxiosInterceptors';
 
 function App() {
+
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            cacheTime: 1000 * 60 * 60 * 24, // 24 hours
+            refetchOnWindowFocus: false,
+            refetchOnMount: false,
+            refetchOnReconnect: false,
+            retry: false,
+          },
+        },
+      })
+  )
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <InjectAxiosInterceptors />
+        <Root />
+      </BrowserRouter>
+      <ToastContainer
+        position="bottom-center"
+        autoClose={3000}
+        hideProgressBar
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable={false}
+        pauseOnHover
+        transition={Slide}
+        theme='dark'
+        toastStyle={{
+          background: '#24292e',
+          border: '1px solid #3C4043',
+        }}
+      />
+      <ReactQueryDevtools position="bottom-right" />
+    </QueryClientProvider>
   );
 }
 
